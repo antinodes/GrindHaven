@@ -282,10 +282,37 @@ their findings files. Then:
    description and note all agents that independently found it — this is a signal
    the issue is real.
 
-4. **Verify HIGH and CRITICAL findings:** Read the actual source files at the stated
-   lines. Confirm the issue exists. Drop findings based on misreading the diff or
-   that reference code that doesn't exist. This step prevents false positives from
-   eroding trust in the review.
+4. **Deep analysis of each finding:** For every finding (not just HIGH/CRITICAL),
+   read the actual source file and perform a thorough review:
+
+   **Existence check:** Does the issue exist at the stated line? Drop findings
+   based on misreading the diff or referencing code that doesn't exist.
+
+   **Severity validation:** Is the severity appropriate? Consider:
+   - What's the actual blast radius if this issue reaches production?
+   - Is there a mitigating factor the agent missed (e.g., framework-level
+     protection, middleware that already handles the case)?
+   - Upgrade findings that are underrated (e.g., a "MEDIUM" that's actually
+     a security vulnerability). Downgrade findings that are overrated (e.g.,
+     a "HIGH" for a style issue in scaffold code).
+
+   **Recommendation validation:** Does the suggested fix actually solve the
+   problem? Consider:
+   - Would the recommendation introduce a new issue?
+   - Is there a simpler fix the agent missed?
+   - Does the recommendation fit the project's patterns (Zod, AdonisJS
+     conventions, existing code style)?
+   - Is the recommendation actionable — could someone implement it from the
+     description alone?
+
+   **Context check:** Does the finding account for the full picture? Read
+   surrounding code, related files, and configuration. An agent reviewing a
+   single file may miss that the issue is already handled elsewhere (e.g.,
+   middleware, exception handler, framework default).
+
+   Drop false positives. Adjust severities. Rewrite weak recommendations.
+   Note in the report when a finding was upgraded, downgraded, or dropped
+   during consolidation and why.
 
 5. **Sort:** CRITICAL → HIGH → MEDIUM → LOW, then by file path within each severity.
 
@@ -340,6 +367,24 @@ their findings files. Then:
 
 Omit empty severity sections — if there are no CRITICAL findings, don't include
 the "Critical Findings" heading at all.
+
+## Phase 4.5: Verify Fixes
+
+If findings were addressed and new commits pushed, verify the fixes actually
+landed in the code before proceeding. This catches issues like squash/rebase
+operations that silently revert fixes.
+
+For each HIGH and CRITICAL finding that was addressed:
+1. Read the source file at the line referenced in the finding
+2. Confirm the fix is present in the current working tree
+3. If a fix is missing, flag it immediately — don't assume it survived git operations
+
+This step is especially important after:
+- `git rebase` (commits can conflict and silently take the wrong version)
+- `git commit --amend` (earlier state may overwrite later fixes)
+- `git reset --soft` + squash (individual fix commits collapse into one)
+
+Only proceed to Phase 5 after all fixes are verified.
 
 ## Phase 5: Post to GitHub
 
