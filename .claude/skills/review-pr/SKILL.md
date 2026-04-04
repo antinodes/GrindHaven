@@ -35,6 +35,10 @@ Produces: `ai-docs/pr-reviews/{pr-number}/review-report.md`
 - **Working directory:** `ai-docs/pr-reviews/{pr-number}/`
 - **Comment template:** `.claude/skills/review-pr/comment-template.md`
 - **`{cwd}`** in agent prompts = the project root (absolute path to the repo)
+- **Reference checklists:** `.claude/skills/review-pr/references/`
+  - `adonisjs-checklist.md` — Controllers, Lucid, VineJS, auth, Shield, SQL injection
+  - `edge-alpine-checklist.md` — Edge templates, Alpine.js, XSS, forms, accessibility
+  - `testing-checklist.md` — Japa structure, HTTP tests, browser tests, coverage gaps
 
 ## Phase 1: Setup
 
@@ -96,6 +100,27 @@ documentation snippets to agents in their prompts.
 If a resolve call fails (library not found), skip it — agents can still review
 using their built-in knowledge. Note the failure in pr-metadata.md.
 
+### Load Domain Checklists
+
+Based on the same file pattern analysis, read the relevant checklist files from
+`.claude/skills/review-pr/references/`. These provide concrete, project-specific
+review criteria that go beyond what Context7 docs cover.
+
+| File pattern | Checklist to load |
+|---|---|
+| `app/**`, `start/**`, `config/**`, `database/**` | `references/adonisjs-checklist.md` |
+| `resources/views/**`, `resources/js/**` | `references/edge-alpine-checklist.md` |
+| `tests/**` | `references/testing-checklist.md` |
+
+Load only the checklists matching the changed files. Include the relevant
+checklist content in each agent's prompt — give each agent only the checklists
+that match their focus area:
+
+- **code-reviewer** gets all loaded checklists (it reviews everything)
+- **typescript-pro** gets `adonisjs-checklist.md` (type patterns) and
+  `testing-checklist.md` (if tests changed)
+- **architect-reviewer** gets `adonisjs-checklist.md` (layering, SOLID sections)
+
 ## Phase 3: Launch 3 Review Agents
 
 Spawn ALL 3 agents in a **single message** with `run_in_background: true`. Each
@@ -110,6 +135,7 @@ Every agent prompt must include:
 - The PR metadata (title, description, branches)
 - The changed files list
 - Relevant Context7 documentation from Phase 2
+- Relevant domain checklists from Phase 2
 - Project conventions from CLAUDE.md (if any)
 - The output file path
 - The finding format and severity definitions (below)
@@ -157,6 +183,9 @@ Project root is at {cwd}.
 Context7 documentation:
 {context7_docs}
 
+Domain checklists (use these as your review criteria):
+{checklists}
+
 Project conventions:
 {claude_md_conventions}
 
@@ -198,6 +227,9 @@ Project root is at {cwd}.
 Context7 documentation:
 {context7_docs}
 
+Domain checklists (use these as your review criteria):
+{checklists}
+
 Project conventions:
 {claude_md_conventions}
 
@@ -235,6 +267,9 @@ Project root is at {cwd}.
 
 Context7 documentation:
 {context7_docs}
+
+Domain checklists (use these as your review criteria):
+{checklists}
 
 Project conventions:
 {claude_md_conventions}
