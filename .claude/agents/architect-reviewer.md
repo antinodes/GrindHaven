@@ -64,6 +64,23 @@ Controllers should be thin — validate input, call a service, return a response
 - A feature requiring changes to >5 files for a simple modification
 - "Utility" files that are dumping grounds for unrelated functions
 
+### KISS — Keep It Simple
+- Functions with >3 levels of nesting
+- Methods with >5 parameters
+- Conditionals with >3 branches — consider strategy pattern or lookup table
+- Try/catch blocks spanning >20 lines — extract the body
+- Generic solutions where a specific one would be simpler and sufficient
+
+### YAGNI — You Aren't Gonna Need It
+- Unused method parameters kept "for flexibility"
+- Abstract classes with a single implementation
+- Configuration options with only one value ever used
+- Feature flags that are never toggled
+- Commented-out code "in case we need it later"
+- Premature abstractions: if there's only one implementation, it's not an abstraction — it's indirection
+
+Ask: "Is this solving a current requirement or a hypothetical future one?"
+
 ### Change Scope
 - Does the PR do too many unrelated things? Should it be split?
 - Is the PR making changes proportional to its stated purpose?
