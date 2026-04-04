@@ -6,7 +6,7 @@ or `database/`. Pass relevant sections to agents based on which files changed.
 ## Controllers
 
 - [ ] Controllers use dependency injection (`@inject()`) not manual instantiation
-- [ ] All user input validated via `request.validateUsing(validator)` — never `request.all()` directly
+- [ ] All user input validated via `validate(ctx, zodSchema)` — never `request.all()` directly
 - [ ] Controllers delegate to services — no more than ~30 lines of business logic
 - [ ] HTTP context destructured correctly: `{ request, response, auth, view }`
 - [ ] Error responses return appropriate status codes (422 for validation, 401/403 for auth)
@@ -31,13 +31,15 @@ or `database/`. Pass relevant sections to agents based on which files changed.
 - [ ] Relationships properly typed with `@hasMany`, `@belongsTo`, etc.
 - [ ] No business logic in models — keep in services
 
-## Validation (VineJS)
+## Validation (Zod)
 
 - [ ] All user input validated before use — no exceptions
-- [ ] Custom validators handle edge cases: empty strings, null, whitespace-only
+- [ ] Schemas handle edge cases: empty strings, null, whitespace-only
 - [ ] Validation error messages are user-friendly
-- [ ] Shared validation rules extracted (like `email()`, `password()` helpers)
-- [ ] `.unique()` rules include appropriate `whereNot` for update operations
+- [ ] Shared schema fragments extracted (like `email`, `password` consts)
+- [ ] `.refine()` used for cross-field validation (password confirmation, etc.)
+- [ ] `z.infer<typeof schema>` used for type derivation — no manual type duplication
+- [ ] Uniqueness checks (email unique) handled at DB level or in controller logic
 
 ## Auth & Authorization
 
@@ -115,8 +117,8 @@ await User.query().whereRaw('email = ?', [email])
 // CRITICAL: passes all fields including isAdmin, role, etc.
 await User.create(request.all())
 
-// CORRECT: validate and whitelist
-const input = await request.validateUsing(createUserValidator)
+// CORRECT: validate with Zod and use only parsed fields
+const input = await validate(ctx, createUserSchema)
 await User.create(input)
 ```
 

@@ -36,7 +36,7 @@ Produces: `ai-docs/pr-reviews/{pr-number}/review-report.md`
 - **Comment template:** `.claude/skills/review-pr/comment-template.md`
 - **`{cwd}`** in agent prompts = the project root (absolute path to the repo)
 - **Reference checklists:** `.claude/skills/review-pr/references/`
-  - `adonisjs-checklist.md` — Controllers, Lucid, VineJS, auth, Shield, SQL injection
+  - `adonisjs-checklist.md` — Controllers, Lucid, Zod validation, auth, Shield, SQL injection
   - `edge-alpine-checklist.md` — Edge templates, Alpine.js, XSS, forms, accessibility
   - `testing-checklist.md` — Japa structure, HTTP tests, browser tests, coverage gaps
 
@@ -196,7 +196,7 @@ Focus on:
 4. Dead code — unreachable branches, redundant conditions
 5. Security — XSS, SQL injection via raw queries, mass assignment via request.all(),
    path traversal, improper input validation
-6. AdonisJS-specific — VineJS validation on all user input, bouncer policies on
+6. AdonisJS-specific — Zod validation on all user input, bouncer policies on
    protected actions, Shield middleware (CSRF, CSP, HSTS)
 
 Key changed files:
@@ -237,7 +237,7 @@ Focus on:
 1. Type safety — use of `any`, missing generics, type assertions that hide errors
 2. Type narrowing — insufficient null checks, incorrect type guards
 3. AdonisJS patterns — controller DI with @inject(), Lucid model typing,
-   VineJS schema inference, HttpContext typing
+   Zod schema inference (z.infer), HttpContext typing
 4. Interface design — overly permissive types, missing readonly, Partial vs Required
 5. Import hygiene — runtime imports where type-only would suffice (import type)
 6. Edge template data — verify types passed to view.render() match what templates expect

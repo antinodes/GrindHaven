@@ -93,4 +93,4 @@ const response = await client
 - [ ] Unit tests for pure business logic (calculations, transformations)
 - [ ] Integration tests for controller + DB + validation flow
 - [ ] Browser tests for JS-dependent UI behavior only
-- [ ] Don't unit-test framework code (Lucid queries, VineJS schemas)
+- [ ] Don't unit-test framework code (Lucid queries, Zod schemas)
