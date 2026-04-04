@@ -1,7 +1,7 @@
 ---
 description: >
   Multi-agent code review for GrindHaven GitHub PRs. Spawns 3 specialized agents
-  (code-reviewer, typescript-pro, architect-reviewer) in parallel, consolidates
+  (code-reviewer, typescript-reviewer, architect-reviewer) in parallel, consolidates
   findings into a report, and optionally posts comments to the PR. Use this skill
   whenever you need to review a pull request, check PR quality before merging, or
   when the user says "review PR", "check this PR", "review before merge", or
@@ -17,8 +17,8 @@ argument-hint: <pr-number>
 # GrindHaven PR Review
 
 Multi-agent parallel code review for GitHub PRs on `antinodes/GrindHaven`. Three
-specialized agents review the PR independently, then findings are deduplicated,
-verified, and consolidated into a single report.
+project-defined agents (`.claude/agents/`) review the PR independently, then
+findings are deduplicated, verified, and consolidated into a single report.
 
 ## Quick Reference
 
@@ -117,7 +117,7 @@ checklist content in each agent's prompt — give each agent only the checklists
 that match their focus area:
 
 - **code-reviewer** gets all loaded checklists (it reviews everything)
-- **typescript-pro** gets `adonisjs-checklist.md` (type patterns) and
+- **typescript-reviewer** gets `adonisjs-checklist.md` (type patterns) and
   `testing-checklist.md` (if tests changed)
 - **architect-reviewer** gets `adonisjs-checklist.md` (layering, SOLID sections)
 
@@ -165,84 +165,68 @@ report. If a finding references a line number, verify it exists in the current s
 
 ### Agent 1: code-reviewer
 
+Uses project agent `.claude/agents/code-reviewer.md` — already has full stack context
+baked in. The prompt only needs to provide PR-specific details.
+
 ```
-subagent_type: code-reviewer
 name: pr-{pr-number}-code-reviewer
+subagent_type: code-reviewer
 run_in_background: true
 ```
 
 **Prompt:**
 ```
-Review PR #{pr-number} on branch {source} targeting {target} for code quality and security.
+Review PR #{pr-number} on branch {source} targeting {target}.
 
-The full diff is at {cwd}/ai-docs/pr-reviews/{pr-number}/diff.patch
-The diff stats are at {cwd}/ai-docs/pr-reviews/{pr-number}/stats.txt
-The commit log is at {cwd}/ai-docs/pr-reviews/{pr-number}/commits.txt
-Project root is at {cwd}.
+Diff: {cwd}/ai-docs/pr-reviews/{pr-number}/diff.patch
+Stats: {cwd}/ai-docs/pr-reviews/{pr-number}/stats.txt
+Commits: {cwd}/ai-docs/pr-reviews/{pr-number}/commits.txt
+Project root: {cwd}
 
 Context7 documentation:
 {context7_docs}
 
-Domain checklists (use these as your review criteria):
+Domain checklists:
 {checklists}
 
 Project conventions:
 {claude_md_conventions}
 
-Focus on:
-1. Logic errors — off-by-one bugs, race conditions, null/undefined hazards
-2. Error handling — missing try/catch, unhandled promise rejections, silent failures
-3. Resource leaks — event listeners not cleaned up, subscriptions not unsubscribed
-4. Dead code — unreachable branches, redundant conditions
-5. Security — XSS, SQL injection via raw queries, mass assignment via request.all(),
-   path traversal, improper input validation
-6. AdonisJS-specific — Zod validation on all user input, bouncer policies on
-   protected actions, Shield middleware (CSRF, CSP, HSTS)
-
-Key changed files:
+Changed files:
 {changed_files}
-
-Cross-reference with Context7 docs when checking API usage patterns.
 
 {finding_format_block}
 ```
 
-### Agent 2: typescript-pro
+### Agent 2: typescript-reviewer
+
+Uses project agent `.claude/agents/typescript-reviewer.md`.
 
 ```
-subagent_type: typescript-pro
-name: pr-{pr-number}-typescript-pro
+name: pr-{pr-number}-typescript-reviewer
+subagent_type: typescript-reviewer
 run_in_background: true
 ```
 
 **Prompt:**
 ```
-Review PR #{pr-number} on branch {source} targeting {target} for TypeScript quality.
+Review PR #{pr-number} on branch {source} targeting {target}.
 
-The full diff is at {cwd}/ai-docs/pr-reviews/{pr-number}/diff.patch
-The diff stats are at {cwd}/ai-docs/pr-reviews/{pr-number}/stats.txt
-The commit log is at {cwd}/ai-docs/pr-reviews/{pr-number}/commits.txt
-Project root is at {cwd}.
+Diff: {cwd}/ai-docs/pr-reviews/{pr-number}/diff.patch
+Stats: {cwd}/ai-docs/pr-reviews/{pr-number}/stats.txt
+Commits: {cwd}/ai-docs/pr-reviews/{pr-number}/commits.txt
+Project root: {cwd}
 
 Context7 documentation:
 {context7_docs}
 
-Domain checklists (use these as your review criteria):
+Domain checklists:
 {checklists}
 
 Project conventions:
 {claude_md_conventions}
 
-Focus on:
-1. Type safety — use of `any`, missing generics, type assertions that hide errors
-2. Type narrowing — insufficient null checks, incorrect type guards
-3. AdonisJS patterns — controller DI with @inject(), Lucid model typing,
-   Zod schema inference (z.infer), HttpContext typing
-4. Interface design — overly permissive types, missing readonly, Partial vs Required
-5. Import hygiene — runtime imports where type-only would suffice (import type)
-6. Edge template data — verify types passed to view.render() match what templates expect
-
-Key changed files (focus on .ts files and .edge template data):
+Changed files (focus on .ts files and .edge template data):
 {changed_files}
 
 {finding_format_block}
@@ -250,47 +234,33 @@ Key changed files (focus on .ts files and .edge template data):
 
 ### Agent 3: architect-reviewer
 
+Uses project agent `.claude/agents/architect-reviewer.md`.
+
 ```
-subagent_type: architect-reviewer
 name: pr-{pr-number}-architect-reviewer
+subagent_type: architect-reviewer
 run_in_background: true
 ```
 
 **Prompt:**
 ```
-Review PR #{pr-number} on branch {source} targeting {target} for architecture quality.
+Review PR #{pr-number} on branch {source} targeting {target}.
 
-The full diff is at {cwd}/ai-docs/pr-reviews/{pr-number}/diff.patch
-The diff stats are at {cwd}/ai-docs/pr-reviews/{pr-number}/stats.txt
-The commit log is at {cwd}/ai-docs/pr-reviews/{pr-number}/commits.txt
-Project root is at {cwd}.
+Diff: {cwd}/ai-docs/pr-reviews/{pr-number}/diff.patch
+Stats: {cwd}/ai-docs/pr-reviews/{pr-number}/stats.txt
+Commits: {cwd}/ai-docs/pr-reviews/{pr-number}/commits.txt
+Project root: {cwd}
 
 Context7 documentation:
 {context7_docs}
 
-Domain checklists (use these as your review criteria):
+Domain checklists:
 {checklists}
 
 Project conventions:
 {claude_md_conventions}
 
-Focus on:
-1. Layering — controllers should delegate to services, services to models. Flag
-   controllers with >30 lines of business logic or direct model queries.
-2. God class detection:
-   - Controllers: >7 methods (warning), >12 (critical)
-   - Services: >10 methods (warning), >15 (critical)
-   - Models: >15 fields (warning), >25 (critical)
-3. SOLID — especially Single Responsibility and Dependency Inversion
-4. Coupling — circular dependencies, feature A importing internals of feature B
-5. Change scope — does the PR try to do too many unrelated things? Should it be split?
-6. Naming and organization — file placement follows AdonisJS conventions,
-   consistent naming patterns
-
-Read the diff, stats, and commit log first to understand scope, then read source
-files for architectural context.
-
-Key changed files:
+Changed files:
 {changed_files}
 
 {finding_format_block}
@@ -364,7 +334,7 @@ their findings files. Then:
 | Agent | Findings | Focus |
 |-------|----------|-------|
 | code-reviewer | {n} | Logic, errors, security |
-| typescript-pro | {n} | Type safety, AdonisJS patterns |
+| typescript-reviewer | {n} | Type safety, AdonisJS patterns |
 | architect-reviewer | {n} | Architecture, coupling, SOLID |
 ```
 

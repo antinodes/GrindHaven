@@ -26,7 +26,7 @@
 | Agent | Focus | Findings |
 |-------|-------|----------|
 | code-reviewer | Logic, errors, security | {count} |
-| typescript-pro | Type safety, AdonisJS patterns | {count} |
+| typescript-reviewer | Type safety, AdonisJS patterns | {count} |
 | architect-reviewer | Architecture, coupling, SOLID | {count} |
 
 ---
