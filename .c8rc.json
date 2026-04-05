@@ -1,0 +1,12 @@
+{
+  "exclude": [
+    "tests/**",
+    "bin/**",
+    "config/**",
+    "database/schema.ts",
+    "database/schema_rules.ts",
+    ".adonisjs/**",
+    "resources/**",
+    "node_modules/**"
+  ]
+}
