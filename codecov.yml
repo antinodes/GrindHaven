@@ -1,0 +1,18 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 5%
+    patch:
+      default:
+        target: 80%
+
+ignore:
+  - 'node_modules/**'
+  - 'build/**'
+  - 'resources/**'
+  - 'config/**'
+  - 'database/schema.ts'
+  - 'database/schema_rules.ts'
+  - '.adonisjs/**'

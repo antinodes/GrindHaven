@@ -1,5 +1,8 @@
 # GrindHaven
 
+[![CI](https://github.com/antinodes/GrindHaven/actions/workflows/ci.yml/badge.svg)](https://github.com/antinodes/GrindHaven/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/antinodes/GrindHaven/graph/badge.svg)](https://codecov.io/gh/antinodes/GrindHaven)
+
 **LLM-native engineering orchestration — with a quest log.**
 
 GrindHaven is a work tracking tool built for engineers who spend their days managing multiple AI coding sessions, ad-hoc requests, and parallel workstreams. It treats LLM agents as first-class participants in your workflow, not afterthoughts.

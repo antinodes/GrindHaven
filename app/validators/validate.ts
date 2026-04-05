@@ -20,15 +20,17 @@ export async function validate<T extends z.ZodTypeAny>(
     return result.data
   }
 
-  const errors = result.error.flatten().fieldErrors
-  const formatted: Record<string, string[]> = {}
-  for (const [field, messages] of Object.entries(errors)) {
-    if (messages) {
-      formatted[field] = messages
-    }
+  const fieldErrors = result.error.flatten().fieldErrors as Record<string, string[]>
+  const messages: Record<string, string[]> = {}
+  for (const [field, errs] of Object.entries(fieldErrors)) {
+    messages[field] = errs
   }
 
-  ctx.session.flashValidationErrors(formatted)
+  ctx.session.flashValidationErrors({
+    message: 'Validation failed',
+    status: 422,
+    messages,
+  })
   ctx.session.flashExcept(flashExcept)
   ctx.response.redirect('back')
 
