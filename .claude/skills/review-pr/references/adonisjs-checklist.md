@@ -14,6 +14,7 @@ or `database/`. Pass relevant sections to agents based on which files changed.
 ## Lucid ORM
 
 ### Queries
+
 - [ ] Relationships use `preload()` not loops with `load()` (N+1 detection)
 - [ ] Queries returning lists have appropriate limits or pagination
 - [ ] `.first()` results checked for null before use
@@ -22,11 +23,13 @@ or `database/`. Pass relevant sections to agents based on which files changed.
 - [ ] Queries select only needed columns where performance matters
 
 ### Transactions
+
 - [ ] Transactions use managed callbacks: `db.transaction(async (trx) => {})`
 - [ ] Transaction scope is minimal — don't hold connections longer than needed
 - [ ] Model hooks don't have side effects that could fail silently
 
 ### Models
+
 - [ ] Sensitive fields use `serializeAs: null` to prevent API exposure
 - [ ] Relationships properly typed with `@hasMany`, `@belongsTo`, etc.
 - [ ] No business logic in models — keep in services
@@ -70,6 +73,7 @@ or `database/`. Pass relevant sections to agents based on which files changed.
 ## Performance
 
 ### N+1 Detection
+
 ```typescript
 // BAD: N+1 — query per iteration
 const users = await User.all()
@@ -82,16 +86,14 @@ const users = await User.query().preload('profile')
 ```
 
 ### Parallelization
+
 ```typescript
 // BAD: sequential when independent
 const user = await User.find(1)
 const posts = await Post.query().where('userId', 1)
 
 // GOOD: parallel
-const [user, posts] = await Promise.all([
-  User.find(1),
-  Post.query().where('userId', 1),
-])
+const [user, posts] = await Promise.all([User.find(1), Post.query().where('userId', 1)])
 ```
 
 ## SQL Injection

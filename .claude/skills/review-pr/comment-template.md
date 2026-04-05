@@ -10,12 +10,12 @@
 
 ### Findings
 
-| Severity | Count |
-|----------|-------|
+| Severity | Count            |
+| -------- | ---------------- |
 | CRITICAL | {critical_count} |
-| HIGH     | {high_count} |
-| MEDIUM   | {medium_count} |
-| LOW      | {low_count} |
+| HIGH     | {high_count}     |
+| MEDIUM   | {medium_count}   |
+| LOW      | {low_count}      |
 
 ### Top Findings
 
@@ -23,21 +23,22 @@
 
 ### Agents
 
-| Agent | Focus | Findings |
-|-------|-------|----------|
-| code-reviewer | Logic, errors, security | {count} |
-| typescript-reviewer | Type safety, AdonisJS patterns | {count} |
-| architect-reviewer | Architecture, coupling, SOLID | {count} |
+| Agent               | Focus                          | Findings |
+| ------------------- | ------------------------------ | -------- |
+| code-reviewer       | Logic, errors, security        | {count}  |
+| typescript-reviewer | Type safety, AdonisJS patterns | {count}  |
+| architect-reviewer  | Architecture, coupling, SOLID  | {count}  |
 
 ---
-*Full report: `ai-docs/pr-reviews/{pr_number}/review-report.md`*
+
+_Full report: `ai-docs/pr-reviews/{pr_number}/review-report.md`_
 ```
 
 ## Individual Finding (for "All" mode)
 
 ```markdown
 **[{severity}] {title}**
-*File: `{file_path}:{line_number}` | Found by: {agent_list}*
+_File: `{file_path}:{line_number}` | Found by: {agent_list}_
 
 {description}
 

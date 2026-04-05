@@ -6,7 +6,7 @@ GrindHaven is a work tracking tool built for engineers who spend their days mana
 
 The name says it all — a haven for the grind. The place where the real work happens: forging software from intent, context, and AI, one session at a time.
 
------
+---
 
 ## The Problem
 
