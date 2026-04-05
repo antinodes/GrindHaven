@@ -48,6 +48,14 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      PORT: 3333
+      HOST: localhost
+      LOG_LEVEL: info
+      APP_KEY: test-app-key-that-is-at-least-16-characters
+      APP_URL: http://localhost:3333
+      SESSION_DRIVER: cookie
     steps:
       - uses: actions/checkout@v4
 
@@ -62,17 +70,9 @@ jobs:
 
       - name: Run migrations
         run: node ace migration:run
-        env:
-          NODE_ENV: test
-          APP_KEY: test-app-key-at-least-16-chars-long
-          SESSION_DRIVER: cookie
 
       - name: Run tests with coverage
         run: npx c8 --reporter=lcov --reporter=text node ace test
-        env:
-          NODE_ENV: test
-          APP_KEY: test-app-key-at-least-16-chars-long
-          SESSION_DRIVER: cookie
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
