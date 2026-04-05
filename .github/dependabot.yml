@@ -1,0 +1,24 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: 'ci'
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: 'build'
+    groups:
+      adonisjs:
+        patterns: ['@adonisjs/*', '@vinejs/*']
+      dev-tooling:
+        patterns: ['eslint*', 'prettier*', 'typescript*', 'vite*', 'c8', '@commitlint/*']
+        update-types: ['minor', 'patch']
+      japa:
+        patterns: ['@japa/*']
