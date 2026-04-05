@@ -4,7 +4,7 @@
 
 - **Framework:** AdonisJS v7 (hypermedia starter — Edge.js + Alpine.js)
 - **Database:** SQLite via better-sqlite3 (stored at `tmp/db.sqlite3`)
-- **Auth:** Session-based. Dev auto-login via `DevAuthMiddleware` (`dev@grindhaven.local`)
+- **Auth:** Session-based. Dev auto-login via `DevAuthMiddleware` (dev-only, gated by `app.inDev`)
 - **Validation:** Zod — NOT VineJS. Use `validate()` from `#validators/validate`
 - **Package manager:** pnpm
 - **Node:** >=24 (see `.nvmrc`)
@@ -45,7 +45,8 @@ node ace migration:rollback   # Rollback last batch
 Use Zod schemas in `app/validators/`. Call `validate(ctx, schema)` from controllers — it handles flash messages, redirect back, and throws `ValidationException`. Do NOT wrap `validate()` in try/catch.
 
 ```ts
-// Controller
+import { validate } from '#validators/validate'
+
 const data = await validate(ctx, signupSchema)
 ```
 
