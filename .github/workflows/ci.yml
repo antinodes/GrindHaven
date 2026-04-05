@@ -68,6 +68,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Create tmp directory for SQLite
+        run: mkdir -p tmp
+
       - name: Run migrations
         run: node ace migration:run
 
