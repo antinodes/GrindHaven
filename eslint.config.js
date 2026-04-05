@@ -3,6 +3,9 @@ import { configApp } from '@adonisjs/eslint-config'
 export default [
   ...configApp(),
   {
+    ignores: ['.claude/worktrees/**'],
+  },
+  {
     rules: {
       // Complexity
       'complexity': ['error', { max: 10 }],

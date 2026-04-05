@@ -33,3 +33,4 @@ coverage
 # AI working artifacts
 ai-docs/
 .playwright-mcp/
+.claude/worktrees/
