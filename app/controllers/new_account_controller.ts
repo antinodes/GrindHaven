@@ -16,8 +16,12 @@ export default class NewAccountController {
       await ctx.auth.use('web').login(user)
       ctx.response.redirect().toRoute('home')
     } catch (error: unknown) {
-      if (error instanceof Error && 'code' in error && error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-        ctx.session.flashValidationErrors({ email: ['Email already taken'] })
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        (error as Record<string, unknown>).code === 'SQLITE_CONSTRAINT_UNIQUE'
+      ) {
+        ctx.session.flash('inputErrorsBag', { email: ['Email already taken'] })
         ctx.session.flashExcept(['password', 'passwordConfirmation'])
         return ctx.response.redirect('back')
       }
