@@ -46,10 +46,12 @@ Produces: `ai-docs/pr-reviews/{pr-number}/review-report.md`
    If no argument is provided, ask the user for the PR number.
 
 2. Fetch PR metadata and verify the PR exists:
+
 ```bash
 gh pr view {pr-number} --json title,body,headRefName,baseRefName,files,commits
 ```
-   If this command fails (PR not found, auth issue), report the error and stop.
+
+If this command fails (PR not found, auth issue), report the error and stop.
 
 3. Extract from the JSON response:
    - `title`, `body`
@@ -59,6 +61,7 @@ gh pr view {pr-number} --json title,body,headRefName,baseRefName,files,commits
    - `commits` → commit list
 
 4. Fetch the source and target branches locally, then generate context files:
+
 ```bash
 git fetch origin {source} {target} 2>/dev/null
 mkdir -p ai-docs/pr-reviews/{pr-number}
@@ -80,14 +83,14 @@ areas the PR actually changes. This keeps agent context focused and avoids noise
 
 Scan the changed file paths and resolve the matching libraries:
 
-| File pattern | Library to resolve | Query |
-|---|---|---|
-| `app/models/**`, `database/**` | AdonisJS Lucid | "Lucid ORM models migrations relationships" |
-| `app/controllers/**`, `start/routes*`, `app/middleware/**` | AdonisJS HTTP | "HTTP controllers routes middleware" |
-| `resources/views/**` | AdonisJS Edge | "Edge templating components layouts" |
-| `tests/**` | Japa | "Japa test runner assertions browser" |
-| `config/**`, `start/**`, `adonisrc*`, `.env*` | AdonisJS core | "AdonisJS configuration environment providers" |
-| `resources/**/*.js` with Alpine patterns | Alpine.js | "Alpine.js directives reactivity" |
+| File pattern                                               | Library to resolve | Query                                          |
+| ---------------------------------------------------------- | ------------------ | ---------------------------------------------- |
+| `app/models/**`, `database/**`                             | AdonisJS Lucid     | "Lucid ORM models migrations relationships"    |
+| `app/controllers/**`, `start/routes*`, `app/middleware/**` | AdonisJS HTTP      | "HTTP controllers routes middleware"           |
+| `resources/views/**`                                       | AdonisJS Edge      | "Edge templating components layouts"           |
+| `tests/**`                                                 | Japa               | "Japa test runner assertions browser"          |
+| `config/**`, `start/**`, `adonisrc*`, `.env*`              | AdonisJS core      | "AdonisJS configuration environment providers" |
+| `resources/**/*.js` with Alpine patterns                   | Alpine.js          | "Alpine.js directives reactivity"              |
 
 **Always resolve AdonisJS core** (with query "AdonisJS v7 application structure
 conventions") regardless of which files changed — it provides the foundational
@@ -106,11 +109,11 @@ Based on the same file pattern analysis, read the relevant checklist files from
 `.claude/skills/review-pr/references/`. These provide concrete, project-specific
 review criteria that go beyond what Context7 docs cover.
 
-| File pattern | Checklist to load |
-|---|---|
-| `app/**`, `start/**`, `config/**`, `database/**` | `references/adonisjs-checklist.md` |
-| `resources/views/**`, `resources/js/**` | `references/edge-alpine-checklist.md` |
-| `tests/**` | `references/testing-checklist.md` |
+| File pattern                                     | Checklist to load                     |
+| ------------------------------------------------ | ------------------------------------- |
+| `app/**`, `start/**`, `config/**`, `database/**` | `references/adonisjs-checklist.md`    |
+| `resources/views/**`, `resources/js/**`          | `references/edge-alpine-checklist.md` |
+| `tests/**`                                       | `references/testing-checklist.md`     |
 
 Load only the checklists matching the changed files. Include the relevant
 checklist content in each agent's prompt — give each agent only the checklists
@@ -131,6 +134,7 @@ and focus on non-trivial changes. Config file updates, lockfile changes, and
 auto-generated files can usually be skimmed rather than deeply reviewed.
 
 Every agent prompt must include:
+
 - The diff file path and project root (absolute paths)
 - The PR metadata (title, description, branches)
 - The changed files list
@@ -175,6 +179,7 @@ run_in_background: true
 ```
 
 **Prompt:**
+
 ```
 Review PR #{pr-number} on branch {source} targeting {target}.
 
@@ -209,6 +214,7 @@ run_in_background: true
 ```
 
 **Prompt:**
+
 ```
 Review PR #{pr-number} on branch {source} targeting {target}.
 
@@ -243,6 +249,7 @@ run_in_background: true
 ```
 
 **Prompt:**
+
 ```
 Review PR #{pr-number} on branch {source} targeting {target}.
 
@@ -331,38 +338,42 @@ their findings files. Then:
 {1-2 paragraph overview: what the PR does and the key findings}
 
 | Severity | Count |
-|----------|-------|
-| CRITICAL | {n} |
-| HIGH     | {n} |
-| MEDIUM   | {n} |
-| LOW      | {n} |
+| -------- | ----- |
+| CRITICAL | {n}   |
+| HIGH     | {n}   |
+| MEDIUM   | {n}   |
+| LOW      | {n}   |
 
 ## Critical Findings
 
 ### {title}
+
 **File:** `{file_path}:{line_number}`
 **Identified by:** {agent_list}
 **Description:** {description}
 **Recommendation:** {recommendation}
 
 ## High Findings
+
 ...
 
 ## Medium Findings
+
 ...
 
 ## Low Findings
+
 ...
 
 ---
 
 ## Agent Coverage
 
-| Agent | Findings | Focus |
-|-------|----------|-------|
-| code-reviewer | {n} | Logic, errors, security |
-| typescript-reviewer | {n} | Type safety, AdonisJS patterns |
-| architect-reviewer | {n} | Architecture, coupling, SOLID |
+| Agent               | Findings | Focus                          |
+| ------------------- | -------- | ------------------------------ |
+| code-reviewer       | {n}      | Logic, errors, security        |
+| typescript-reviewer | {n}      | Type safety, AdonisJS patterns |
+| architect-reviewer  | {n}      | Architecture, coupling, SOLID  |
 ```
 
 Omit empty severity sections — if there are no CRITICAL findings, don't include
@@ -375,11 +386,13 @@ landed in the code before proceeding. This catches issues like squash/rebase
 operations that silently revert fixes.
 
 For each HIGH and CRITICAL finding that was addressed:
+
 1. Read the source file at the line referenced in the finding
 2. Confirm the fix is present in the current working tree
 3. If a fix is missing, flag it immediately — don't assume it survived git operations
 
 This step is especially important after:
+
 - `git rebase` (commits can conflict and silently take the wrong version)
 - `git commit --amend` (earlier state may overwrite later fixes)
 - `git reset --soft` + squash (individual fix commits collapse into one)
@@ -401,6 +414,7 @@ Only proceed to Phase 5 after all fixes are verified.
    shell quoting issues with markdown.
 
 4. Post via:
+
 ```bash
 gh pr comment {pr-number} --body-file ai-docs/pr-reviews/{pr-number}/gh-comment.md
 ```
