@@ -6,6 +6,10 @@ import { ValidationException } from '#exceptions/validation_exception'
  * Parse request body with a Zod schema. On validation failure, flashes
  * errors and old input to the session and redirects back.
  *
+ * Writes directly to the session flash store (inputErrorsBag + errorsBag)
+ * rather than using flashValidationErrors(), which expects VineJS-shaped
+ * error arrays that don't match Zod's output format.
+ *
  * Throws ValidationException to abort the controller — callers should
  * NOT wrap this in try/catch unless they re-throw.
  */
@@ -20,16 +24,14 @@ export async function validate<T extends z.ZodTypeAny>(
     return result.data
   }
 
-  const fieldErrors = result.error.flatten().fieldErrors as Record<string, string[]>
-  const messages: Record<string, string[]> = {}
-  for (const [field, errs] of Object.entries(fieldErrors)) {
-    messages[field] = errs
-  }
+  const fieldErrors = result.error.flatten().fieldErrors
+  const errorsBag: Record<string, string[]> = Object.fromEntries(
+    Object.entries(fieldErrors).filter((entry): entry is [string, string[]] => !!entry[1])
+  )
 
-  ctx.session.flashValidationErrors({
-    message: 'Validation failed',
-    status: 422,
-    messages,
+  ctx.session.flash('inputErrorsBag', errorsBag)
+  ctx.session.flash('errorsBag', {
+    E_VALIDATION_ERROR: 'Please check the form for errors.',
   })
   ctx.session.flashExcept(flashExcept)
   ctx.response.redirect('back')

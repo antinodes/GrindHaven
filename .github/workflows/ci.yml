@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint & Format
@@ -53,9 +56,9 @@ jobs:
       PORT: 3333
       HOST: localhost
       LOG_LEVEL: info
-      APP_KEY: test-app-key-that-is-at-least-16-characters
+      APP_KEY: test-only-key-no-security-value-minimum-16-chars
       APP_URL: http://localhost:3333
-      SESSION_DRIVER: cookie
+      SESSION_DRIVER: memory
     steps:
       - uses: actions/checkout@v4
 
@@ -75,7 +78,7 @@ jobs:
         run: node ace migration:run
 
       - name: Run tests with coverage
-        run: npx c8 --reporter=lcov --reporter=text node ace test
+        run: pnpm test:coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
